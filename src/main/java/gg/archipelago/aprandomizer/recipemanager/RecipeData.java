@@ -1,6 +1,6 @@
 package gg.archipelago.aprandomizer.recipemanager;
 
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,7 +64,7 @@ public class RecipeData {
         );
     }};
 
-    protected boolean injectIRecipe(IRecipe<?> iRecipe) {
+    protected boolean injectIRecipe(Recipe<?> iRecipe) {
         for (Map.Entry<Integer, GroupRecipe> entry : recipes.entrySet()) {
             for (String namespaceID : entry.getValue().namespaceIDs) {
                 LOGGER.trace("checking {} vs {},", iRecipe.getId().toString(), namespaceID);
@@ -95,7 +95,7 @@ public class RecipeData {
         return recipes.containsKey(id) || progressiveRecipes.containsKey(id);
     }
 
-    public Recipe getID(int id) {
+    public APRecipe getID(int id) {
         if (recipes.containsKey(id)) {
             return recipes.get(id);
         } else if (progressiveRecipes.containsKey(id)) {

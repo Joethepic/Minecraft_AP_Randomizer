@@ -9,9 +9,6 @@ public class CapabilityPlayerData {
     public static Capability<PlayerData> CAPABILITY_PLAYER_DATA = null;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(
-                PlayerData.class,
-                new PlayerData.PlayerDataStorage(),
-                PlayerData::new);
+        CapabilityManager.INSTANCE.register(PlayerData.class);
     }
 }

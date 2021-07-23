@@ -3,7 +3,7 @@ package gg.archipelago.aprandomizer.advancementmanager;
 import gg.archipelago.aprandomizer.APRandomizer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -149,7 +149,7 @@ public class AdvancementManager {
 
     public void syncAdvancement(Advancement a) {
         if (hasAdvancement(a.getId().toString())) {
-            for (ServerPlayerEntity serverPlayerEntity : APRandomizer.getServer().getPlayerList().getPlayers()) {
+            for (ServerPlayer serverPlayerEntity : APRandomizer.getServer().getPlayerList().getPlayers()) {
                 AdvancementProgress ap = serverPlayerEntity.getAdvancements().getOrStartProgress(a);
                 if (ap.isDone())
                     continue;
@@ -163,7 +163,7 @@ public class AdvancementManager {
     public void syncAllAdvancements() {
         for (Advancement a : getServer().getAdvancements().getAllAdvancements()) {
             if (hasAdvancement(a.getId().toString())) {
-                for (ServerPlayerEntity serverPlayerEntity : APRandomizer.getServer().getPlayerList().getPlayers()) {
+                for (ServerPlayer serverPlayerEntity : APRandomizer.getServer().getPlayerList().getPlayers()) {
                     AdvancementProgress ap = serverPlayerEntity.getAdvancements().getOrStartProgress(a);
                     if (ap.isDone())
                         continue;

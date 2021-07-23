@@ -9,9 +9,6 @@ public class CapabilityWorldData {
     public static Capability<WorldData> CAPABILITY_WORLD_DATA = null;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(
-                WorldData.class,
-                new WorldData.WorldDataStorage(),
-                WorldData::new);
+        CapabilityManager.INSTANCE.register(WorldData.class);
     }
 }

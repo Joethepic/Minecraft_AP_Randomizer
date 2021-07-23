@@ -6,22 +6,22 @@ import gg.archipelago.aprandomizer.capability.CapabilityPlayerData;
 import gg.archipelago.aprandomizer.capability.PlayerData;
 import gg.archipelago.aprandomizer.common.Utils.Utils;
 import gg.archipelago.aprandomizer.itemmanager.traps.BeeTrap;
-import net.minecraft.enchantment.EnchantmentData;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraftforge.common.util.LazyOptional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,12 +39,12 @@ public class ItemManager {
         put(45015, new ItemInfo(Items.NETHERITE_SCRAP, 8));
         put(45016, new ItemInfo(Items.EMERALD, 8));
         put(45017, new ItemInfo(Items.EMERALD, 4));
-        put(45018, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.CHANNELING, 1)));
-        put(45019, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.SILK_TOUCH, 1)));
-        put(45020, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.SHARPNESS, 3)));
-        put(45021, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.PIERCING, 4)));
-        put(45022, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.MOB_LOOTING, 3)));
-        put(45023, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentData(Enchantments.INFINITY_ARROWS, 1)));
+        put(45018, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.CHANNELING, 1)));
+        put(45019, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.SILK_TOUCH, 1)));
+        put(45020, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.SHARPNESS, 3)));
+        put(45021, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.PIERCING, 4)));
+        put(45022, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.MOB_LOOTING, 3)));
+        put(45023, new ItemInfo(Items.ENCHANTED_BOOK, 1, new EnchantmentInstance(Enchantments.INFINITY_ARROWS, 1)));
         put(45024, new ItemInfo(Items.DIAMOND_ORE, 4));
         put(45025, new ItemInfo(Items.IRON_ORE, 16));
         put(45029, new ItemInfo(Items.ENDER_PEARL, 3));
@@ -56,19 +56,19 @@ public class ItemManager {
         put(45034, new ItemInfo(Items.ARROW, 1, "The Arrow"));
         put(45035, new ItemInfo(Items.ARROW, 32));
         put(45036, new ItemInfo(Items.SADDLE, 1));
-        put(45037, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(Structure.VILLAGE), "Structure Compass (Village)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
-        put(45038, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(Structure.PILLAGER_OUTPOST), "Structure Compass (Pillager Outpost)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
-        put(45039, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(Structure.NETHER_BRIDGE), "Structure Compass (Nether Fortress)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
-        put(45040, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(Structure.BASTION_REMNANT), "Structure Compass (Bastion Remnant)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
-        put(45041, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(Structure.END_CITY), "Structure Compass (End City)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
+        put(45037, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(StructureFeature.VILLAGE), "Structure Compass (Village)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
+        put(45038, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(StructureFeature.PILLAGER_OUTPOST), "Structure Compass (Pillager Outpost)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
+        put(45039, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(StructureFeature.NETHER_BRIDGE), "Structure Compass (Nether Fortress)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
+        put(45040, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(StructureFeature.BASTION_REMNANT), "Structure Compass (Bastion Remnant)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
+        put(45041, new ItemInfo(Items.COMPASS, 1, Utils.getCorrectStructure(StructureFeature.END_CITY), "Structure Compass (End City)", new String[]{"Right click with compass in hand to","cycle to next known structure location."}));
     }};
 
     private final HashMap<Integer,String> compasses = new HashMap<Integer,String>() {{
-        put(45037, Structure.VILLAGE.getFeatureName());
-        put(45038, Structure.PILLAGER_OUTPOST.getFeatureName());
-        put(45039, Structure.NETHER_BRIDGE.getFeatureName());
-        put(45040, Structure.BASTION_REMNANT.getFeatureName());
-        put(45041, Structure.END_CITY.getFeatureName());
+        put(45037, StructureFeature.VILLAGE.getFeatureName());
+        put(45038, StructureFeature.PILLAGER_OUTPOST.getFeatureName());
+        put(45039, StructureFeature.NETHER_BRIDGE.getFeatureName());
+        put(45040, StructureFeature.BASTION_REMNANT.getFeatureName());
+        put(45041, StructureFeature.END_CITY.getFeatureName());
 
     }};
 
@@ -93,20 +93,20 @@ public class ItemManager {
             EnchantedBookItem.addEnchantment(iStack, iInfo.enchant);
         }
         if (iInfo.name != null) {
-            iStack.setHoverName(new StringTextComponent(iInfo.name));
+            iStack.setHoverName(new TextComponent(iInfo.name));
         }
         if (iInfo.lore != null) {
-            CompoundNBT compoundnbt = iStack.getOrCreateTagElement("display");
-            ListNBT itemLoreLines = new ListNBT();
+            CompoundTag compoundnbt = iStack.getOrCreateTagElement("display");
+            ListTag itemLoreLines = new ListTag();
             for (String s : iInfo.lore) {
-                StringNBT itemLore = StringNBT.valueOf(ITextComponent.Serializer.toJson(new StringTextComponent(s)));
+                StringTag itemLore = StringTag.valueOf(Component.Serializer.toJson(new TextComponent(s)));
                 itemLoreLines.add(itemLore);
             }
             compoundnbt.put("Lore",itemLoreLines);
         }
         if (iInfo.structure != null && iStack.getItem().equals(Items.COMPASS)) {
-            CompoundNBT nbt = iStack.getOrCreateTag();
-            nbt.put("structure", StringNBT.valueOf(iInfo.structure.getRegistryName().toString()));
+            CompoundTag nbt = iStack.getOrCreateTag();
+            nbt.put("structure", StringTag.valueOf(iInfo.structure.getRegistryName().toString()));
 
             BlockPos structureCords = APRandomizer.getServer().getLevel(Utils.getStructureWorld(iInfo.structure)).findNearestMapFeature(iInfo.structure, new BlockPos(0,0,0), 100, false);
 
@@ -125,7 +125,7 @@ public class ItemManager {
         }
     }
 
-    public void giveItem(int itemID, ServerPlayerEntity player) {
+    public void giveItem(int itemID, ServerPlayer player) {
 
         //update the player's index of received items for syncing later.
         LazyOptional<PlayerData> loPlayerData = player.getCapability(CapabilityPlayerData.CAPABILITY_PLAYER_DATA);
@@ -136,7 +136,7 @@ public class ItemManager {
 
         if (itemData.containsKey(itemID)) {
             ItemStack itemstack = buildNewItemStack(itemID);
-            boolean flag = player.inventory.add(itemstack);
+            boolean flag = player.getInventory().add(itemstack);
             if (flag && itemstack.isEmpty()) {
                 itemstack.setCount(1);
                 ItemEntity itementity1 = player.drop(itemstack, false);
@@ -144,7 +144,7 @@ public class ItemManager {
                     itementity1.makeFakeItem();
                 }
 
-                player.level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                player.level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 player.inventoryMenu.broadcastChanges();
             } else {
                 ItemEntity itementity = player.drop(itemstack, false);
@@ -169,7 +169,7 @@ public class ItemManager {
             receivedCompasses.add(compasses.get(itemID));
         }
         APRandomizer.getServer().execute(() -> {
-            for (ServerPlayerEntity serverplayerentity : APRandomizer.getServer().getPlayerList().getPlayers()) {
+            for (ServerPlayer serverplayerentity : APRandomizer.getServer().getPlayerList().getPlayers()) {
                 giveItem(itemID, serverplayerentity);
             }
         });
@@ -180,7 +180,7 @@ public class ItemManager {
      fetches the index form the player's capability then makes sure they have all items after that index.
      * @param player ServerPlayer to catch up
      */
-    public void catchUpPlayer(ServerPlayerEntity player) {
+    public void catchUpPlayer(ServerPlayer player) {
         LazyOptional<PlayerData> loPlayerData = player.getCapability(CapabilityPlayerData.CAPABILITY_PLAYER_DATA);
         if (loPlayerData.isPresent()) {
             PlayerData playerData = loPlayerData.orElseThrow(AssertionError::new);

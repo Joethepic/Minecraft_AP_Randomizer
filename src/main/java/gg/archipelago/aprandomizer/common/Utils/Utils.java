@@ -9,28 +9,32 @@ import gg.archipelago.aprandomizer.APRandomizer;
 import gg.archipelago.aprandomizer.APStructures;
 import gg.archipelago.aprandomizer.capability.CapabilityWorldData;
 import gg.archipelago.aprandomizer.capability.WorldData;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.play.server.STitlePacket;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.*;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.server.level.ServerLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
 
 public class Utils {
     // Directly reference a log4j logger.
@@ -43,20 +47,20 @@ public class Utils {
 
     private static final MinecraftServer server = APRandomizer.getServer();
 
-    public static void SendMessage(CommandSource source, String Message) {
+    public static void SendMessage(CommandSourceStack source, String Message) {
         try {
-            ServerPlayerEntity player = source.getPlayerOrException();
-            player.sendMessage(new StringTextComponent(Message), Util.NIL_UUID);
+            ServerPlayer player = source.getPlayerOrException();
+            player.sendMessage(new TextComponent(Message), Util.NIL_UUID);
         } catch (CommandSyntaxException e) {
-            source.getServer().sendMessage(new StringTextComponent(Message), Util.NIL_UUID);
+            source.getServer().sendMessage(new TextComponent(Message), Util.NIL_UUID);
         }
     }
 
     public static void sendMessageToAll(String message) {
-        sendMessageToAll(new StringTextComponent(message));
+        sendMessageToAll(new TextComponent(message));
     }
 
-    public static void sendMessageToAll(ITextComponent message) {
+    public static void sendMessageToAll(Component message) {
         //tell the server to send the message in a thread safe way.
         server.execute(() -> {
             server.getPlayerList().broadcastMessage(message, ChatType.SYSTEM, Util.NIL_UUID);
@@ -65,7 +69,7 @@ public class Utils {
     }
 
     public static void sendFancyMessageToAll(APPrint apPrint) {
-        ITextComponent message = Utils.apPrintToTextComponent(apPrint);
+        Component message = Utils.apPrintToTextComponent(apPrint);
 
         //tell the server to send the message in a thread safe way.
         server.execute(() -> {
@@ -74,41 +78,41 @@ public class Utils {
 
     }
 
-    public static ITextComponent apPrintToTextComponent(APPrint apPrint) {
-        StringTextComponent message = new StringTextComponent("");
+    public static Component apPrintToTextComponent(APPrint apPrint) {
+        TextComponent message = new TextComponent("");
         for (int i = 0; apPrint.parts.length > i; ++i) {
             APPrintPart part = apPrint.parts[i];
             LOGGER.trace("part[" + i + "]: " + part.text + ", " + part.color + ", " + part.type);
             Style style = Style.EMPTY;
             if (part.color == null) {
                 if (APRandomizer.getAP().getMyName().equals(part.text)) {
-                    style = Style.EMPTY.withColor(Color.fromRgb(APPrintColor.gold.value)).withBold(true);
+                    style = Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.gold.value)).withBold(true);
                 } else if (part.type == APPrintType.playerID) {
-                    style = Style.EMPTY.withColor(Color.fromRgb(APPrintColor.yellow.value));
+                    style = Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.yellow.value));
                 } else if (part.type == APPrintType.locationID) {
-                    style = Style.EMPTY.withColor(Color.fromRgb(APPrintColor.green.value));
+                    style = Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.green.value));
                 } else if (part.type == APPrintType.itemID) {
-                    style = Style.EMPTY.withColor(Color.fromRgb(APPrintColor.cyan.value));
+                    style = Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.cyan.value));
                 }
             } else if (part.color == APPrintColor.underline)
                 style = Style.EMPTY.withUnderlined(true);
             else if (part.color == APPrintColor.bold)
                 style = Style.EMPTY.withBold(true);
             else
-                style = Style.EMPTY.withColor(Color.fromRgb(part.color.value));
+                style = Style.EMPTY.withColor(TextColor.fromRgb(part.color.value));
 
-            message.append(new StringTextComponent(part.text).withStyle(style));
+            message.append(new TextComponent(part.text).withStyle(style));
         }
         return message;
     }
 
-    public static void sendTitleToAll(ITextComponent title, ITextComponent subTitle, int fadeIn, int stay, int fadeOut) {
+    public static void sendTitleToAll(Component title, Component subTitle, int fadeIn, int stay, int fadeOut) {
         server.execute(() -> {
             TitleQueue.queueTitle(new QueuedTitle(server.getPlayerList().getPlayers(), fadeIn, stay, fadeOut, subTitle, title));
         });
     }
 
-    public static void sendTitleToAll(ITextComponent title, ITextComponent subTitle, ITextComponent chatMessage, int fadeIn, int stay, int fadeOut) {
+    public static void sendTitleToAll(Component title, Component subTitle, Component chatMessage, int fadeIn, int stay, int fadeOut) {
         server.execute(() -> {
             TitleQueue.queueTitle(new QueuedTitle(server.getPlayerList().getPlayers(), fadeIn, stay, fadeOut, subTitle, title, chatMessage));
         });
@@ -118,31 +122,31 @@ public class Utils {
         server.execute(() -> {
             TitleUtils.setTimes(server.getPlayerList().getPlayers(), fadeIn, stay, fadeOut);
 
-            ITextComponent subTitleMessage = new StringTextComponent(actionBarMessage);
+            Component subTitleMessage = new TextComponent(actionBarMessage);
 
-            TitleUtils.showTitle(server.getPlayerList().getPlayers(), subTitleMessage, STitlePacket.Type.ACTIONBAR);
+            TitleUtils.showActionBar(server.getPlayerList().getPlayers(), subTitleMessage);
         });
     }
 
-    public static void sendActionBarToPlayer(ServerPlayerEntity player, String actionBarMessage, int fadeIn, int stay, int fadeOut) {
+    public static void sendActionBarToPlayer(ServerPlayer player, String actionBarMessage, int fadeIn, int stay, int fadeOut) {
         server.execute(() -> {
             TitleUtils.setTimes(Collections.singletonList(player), fadeIn, stay, fadeOut);
 
-            ITextComponent subTitleMessage = new StringTextComponent(actionBarMessage);
+            Component text = new TextComponent(actionBarMessage);
 
-            TitleUtils.showTitle(Collections.singletonList(player), subTitleMessage, STitlePacket.Type.ACTIONBAR);
+            TitleUtils.showActionBar(Collections.singletonList(player), text);
         });
     }
 
     public static void PlaySoundToAll(SoundEvent sound) {
         server.execute(() -> {
-            for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                player.playNotifySound(sound, SoundCategory.MASTER, 1, 1);
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                player.playNotifySound(sound, SoundSource.MASTER, 1, 1);
             }
         });
     }
 
-    public static void SpawnDragon(ServerWorld end) {
+    public static void SpawnDragon(ServerLevel end) {
         end.dragonFight.spawnExitPortal(false);
         end.dragonFight.findOrCreateDragon();
         end.dragonFight.dragonKilled = false;
@@ -150,7 +154,7 @@ public class Utils {
         end.getCapability(CapabilityWorldData.CAPABILITY_WORLD_DATA).orElseThrow(AssertionError::new).setDragonState(WorldData.DRAGON_SPAWNED);
     }
 
-    public static Structure<?> getCorrectStructure(Structure<?> structure) {
+    public static StructureFeature<?> getCorrectStructure(StructureFeature<?> structure) {
         // if any of these structures appear in the nether we need to change the compass
         // to point to our structure instead of the vanilla one.
 
@@ -184,7 +188,7 @@ public class Utils {
         return structure;
     }
 
-    public static RegistryKey<World> getStructureWorld(Structure<?> structure) {
+    public static ResourceKey<Level> getStructureWorld(StructureFeature<?> structure) {
 
         String structureName = getAPStructureName(structure);
         String world = "overworld";
@@ -193,21 +197,21 @@ public class Utils {
         for (Map.Entry<String, String> entry : structures.entrySet()) {
             if(entry.getValue().equals(structureName)) {
                 if (entry.getKey().contains("Overworld")) {
-                    return World.OVERWORLD;
+                    return Level.OVERWORLD;
                 }
                 if(entry.getKey().contains("Nether")) {
-                    return World.NETHER;
+                    return Level.NETHER;
                 }
                 if(entry.getKey().contains("The End")) {
-                    return World.END;
+                    return Level.END;
                 }
             }
         }
 
-        return World.OVERWORLD;
+        return Level.OVERWORLD;
     }
 
-    public static String getAPStructureName(Structure<?> structure) {
+    public static String getAPStructureName(StructureFeature<?> structure) {
         switch(structure.getRegistryName().getPath().toLowerCase()) {
             case "village_nether":
             case "village":
@@ -227,9 +231,9 @@ public class Utils {
         }
     }
 
-    public static void addLodestoneTags(RegistryKey<World> worldRegistryKey, BlockPos blockPos, CompoundNBT nbt) {
-        nbt.put("LodestonePos", NBTUtil.writeBlockPos(blockPos));
-        World.RESOURCE_KEY_CODEC.encodeStart(NBTDynamicOps.INSTANCE, worldRegistryKey).resultOrPartial(LOGGER::error).ifPresent((p_234668_1_) -> {
+    public static void addLodestoneTags(ResourceKey<Level> worldRegistryKey, BlockPos blockPos, CompoundTag nbt) {
+        nbt.put("LodestonePos", NbtUtils.writeBlockPos(blockPos));
+        Level.RESOURCE_KEY_CODEC.encodeStart(NbtOps.INSTANCE, worldRegistryKey).resultOrPartial(LOGGER::error).ifPresent((p_234668_1_) -> {
             nbt.put("LodestoneDimension", p_234668_1_);
         });
         nbt.putBoolean("LodestoneTracked", false);

@@ -8,8 +8,8 @@ import gg.archipelago.aprandomizer.APClient;
 import gg.archipelago.aprandomizer.APRandomizer;
 import gg.archipelago.aprandomizer.APStorage.APMCData;
 import gg.archipelago.aprandomizer.common.Utils.Utils;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +23,7 @@ public class ConnectCommand {
     private static final Logger LOGGER = LogManager.getLogger();
 
     //build our command structure and submit it
-    public static void Register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void Register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(
                 Commands.literal("connect") //base slash command is "connect"
@@ -76,7 +76,7 @@ public class ConnectCommand {
 
     }
 
-    private static int connectToAPServer(CommandContext<CommandSource> commandContext, String hostname, int port, String password) {
+    private static int connectToAPServer(CommandContext<CommandSourceStack> commandContext, String hostname, int port, String password) {
         APMCData data = APRandomizer.getApmcData();
         if (data.state == APMCData.State.VALID) {
 

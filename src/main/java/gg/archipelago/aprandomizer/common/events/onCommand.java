@@ -1,8 +1,8 @@
 package gg.archipelago.aprandomizer.common.events;
 
 import gg.archipelago.aprandomizer.APRandomizer;
-import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -31,13 +31,13 @@ public class onCommand {
         if (!APRandomizer.isRace()) {
             return;
         }
-        CommandSource source = event.getParseResults().getContext().getSource();
+        CommandSourceStack source = event.getParseResults().getContext().getSource();
         String command = event.getParseResults().getReader().getRead();
         for (String allowedCommand : allowedCommands)
             if (command.startsWith(allowedCommand))
                 return;
 
         event.setCanceled(true);
-        source.sendFailure(new StringTextComponent("Non-essential commands are disabled in race mode."));
+        source.sendFailure(new TextComponent("Non-essential commands are disabled in race mode."));
     }
 }

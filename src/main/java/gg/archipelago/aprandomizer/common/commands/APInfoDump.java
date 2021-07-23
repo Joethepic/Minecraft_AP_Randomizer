@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import gg.archipelago.aprandomizer.APRandomizer;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,7 +24,7 @@ public class APInfoDump {
     private static final Logger LOGGER = LogManager.getLogger();
 
     //build our command structure and submit it
-    public static void Register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void Register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(
             Commands.literal("ap") //base slash command is "connect"
@@ -44,12 +44,12 @@ public class APInfoDump {
 
     }
 
-    private static int beeTrap(CommandContext<CommandSource> source) {
+    private static int beeTrap(CommandContext<CommandSourceStack> source) {
         APRandomizer.getItemManager().giveItemToAll(45100);
         return 1;
     }
 
-    private static int compasses(CommandContext<CommandSource> source) {
+    private static int compasses(CommandContext<CommandSourceStack> source) {
         APRandomizer.getItemManager().giveItemToAll(45037);
         APRandomizer.getItemManager().giveItemToAll(45038);
         APRandomizer.getItemManager().giveItemToAll(45039);
@@ -58,7 +58,7 @@ public class APInfoDump {
         return 1;
     }
 
-    private static int infoDump(CommandContext<CommandSource> source) {
+    private static int infoDump(CommandContext<CommandSourceStack> source) {
         Collection<Advancement> advancements = source.getSource().getServer().getAdvancements().getAllAdvancements();
 
         try {

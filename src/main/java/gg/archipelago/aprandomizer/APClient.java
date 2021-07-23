@@ -7,11 +7,16 @@ import gg.archipelago.APClient.network.ConnectionResult;
 import gg.archipelago.APClient.parts.NetworkItem;
 import gg.archipelago.aprandomizer.APStorage.APMCData;
 import gg.archipelago.aprandomizer.common.Utils.Utils;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
 
 public class APClient extends gg.archipelago.APClient.APClient {
 
@@ -66,11 +71,11 @@ public class APClient extends gg.archipelago.APClient.APClient {
 
             //catch up all connected players to the list just received.
             server.execute(() -> {
-                for (ServerPlayerEntity player : APRandomizer.getServer().getPlayerList().getPlayers()) {
+                for (ServerPlayer player : APRandomizer.getServer().getPlayerList().getPlayers()) {
                     APRandomizer.getItemManager().catchUpPlayer(player);
                 }
                 APRandomizer.getBossBar().setMax(APRandomizer.getAdvancementManager().getRequiredAmount());
-                APRandomizer.getBossBar().setName(new StringTextComponent(String.format("Advancements (%d / %d)", APRandomizer.getAdvancementManager().getFinishedAmount(), APRandomizer.getAdvancementManager().getRequiredAmount())));
+                APRandomizer.getBossBar().setName(new TextComponent(String.format("Advancements (%d / %d)", APRandomizer.getAdvancementManager().getFinishedAmount(), APRandomizer.getAdvancementManager().getRequiredAmount())));
                 APRandomizer.getBossBar().setValue(APRandomizer.getAdvancementManager().getFinishedAmount());
             });
 
@@ -122,23 +127,23 @@ public class APClient extends gg.archipelago.APClient.APClient {
         } else {
             Utils.sendMessageToAll(reason);
         }
-        IFormattableTextComponent advBar = new StringTextComponent("Not connected to Archipelago").withStyle(Style.EMPTY.withColor(Color.parseColor("red")));
-        APRandomizer.getBossBar().setName(advBar.append(new StringTextComponent(" (" + APRandomizer.getAdvancementManager().getFinishedAmount() + ")")));
+        MutableComponent advBar = new TextComponent("Not connected to Archipelago").withStyle(Style.EMPTY.withColor(TextColor.parseColor("red")));
+        APRandomizer.getBossBar().setName(advBar.append(new TextComponent(" (" + APRandomizer.getAdvancementManager().getFinishedAmount() + ")")));
     }
 
     @Override
     public void onReceiveItem(int item, String sentFromLocation, String senderName) {
         String itemName = getDataPackage().getItem(item);
-        ITextComponent textItem = new StringTextComponent(itemName).withStyle(Style.EMPTY.withColor(Color.fromRgb(APPrintColor.gold.value)));
-        ITextComponent chatMessage = new StringTextComponent(
-                "Received ").withStyle(Style.EMPTY.withColor(Color.parseColor("red")))
-                .append(itemName).withStyle(Style.EMPTY.withColor(Color.parseColor("gold")))
-                .append(" from ").withStyle(Style.EMPTY.withColor(Color.parseColor("red")))
-                .append(senderName).withStyle(Style.EMPTY.withColor(Color.parseColor("gold")))
-                .append(" (").withStyle(Style.EMPTY.withColor(Color.parseColor("red")))
-                .append(sentFromLocation).withStyle(Style.EMPTY.withColor(Color.parseColor("blue")))
-                .append(")").withStyle(Style.EMPTY.withColor(Color.parseColor("red")));
-        ITextComponent title = new StringTextComponent("Received").withStyle(Style.EMPTY.withColor(Color.fromRgb(APPrintColor.red.value)));
+        Component textItem = new TextComponent(itemName).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.gold.value)));
+        Component chatMessage = new TextComponent(
+                "Received ").withStyle(Style.EMPTY.withColor(TextColor.parseColor("red")))
+                .append(itemName).withStyle(Style.EMPTY.withColor(TextColor.parseColor("gold")))
+                .append(" from ").withStyle(Style.EMPTY.withColor(TextColor.parseColor("red")))
+                .append(senderName).withStyle(Style.EMPTY.withColor(TextColor.parseColor("gold")))
+                .append(" (").withStyle(Style.EMPTY.withColor(TextColor.parseColor("red")))
+                .append(sentFromLocation).withStyle(Style.EMPTY.withColor(TextColor.parseColor("blue")))
+                .append(")").withStyle(Style.EMPTY.withColor(TextColor.parseColor("red")));
+        Component title = new TextComponent("Received").withStyle(Style.EMPTY.withColor(TextColor.fromRgb(APPrintColor.red.value)));
         Utils.sendTitleToAll(title, textItem, chatMessage, 10, 60, 10);
         APRandomizer.getRecipeManager().grantRecipe(item);
         APRandomizer.getItemManager().giveItemToAll(item);

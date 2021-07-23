@@ -1,8 +1,8 @@
 package gg.archipelago.aprandomizer.capability;
 
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nullable;
@@ -27,22 +27,4 @@ public class PlayerData {
         return index;
     }
 
-    public static class PlayerDataStorage implements Capability.IStorage<PlayerData> {
-
-        @Nullable
-        @Override
-        public INBT writeNBT(Capability<PlayerData> capability, PlayerData instance, Direction side) {
-            return IntNBT.valueOf(instance.getIndex());
-        }
-
-        @Override
-        public void readNBT(Capability<PlayerData> capability, PlayerData instance, Direction side, INBT nbt) {
-            int index = 0;
-            if (nbt.getType() == IntNBT.TYPE) {
-                index = ((IntNBT) nbt).getAsInt();
-            }
-            instance.setIndex(index);
-        }
-
-    }
 }

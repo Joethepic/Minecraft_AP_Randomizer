@@ -7,6 +7,8 @@
   "respawn_anchor_works": true,
   "has_raids": true,
   "ultrawarm": true,
+  "min_y": 0,
+  "height": 256,
   "natural": false,
   "coordinate_scale": 8.0,
   "piglin_safe": true,

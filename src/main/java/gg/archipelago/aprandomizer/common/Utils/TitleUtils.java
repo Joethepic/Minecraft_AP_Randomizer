@@ -1,31 +1,38 @@
 package gg.archipelago.aprandomizer.common.Utils;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.server.STitlePacket;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 
 public class TitleUtils {
 
-    static void resetTitle(Collection<ServerPlayerEntity> players) {
-        STitlePacket stitlepacket = new STitlePacket(STitlePacket.Type.RESET, null);
+    static void resetTitle(Collection<ServerPlayer> players) {
+        ClientboundClearTitlesPacket stitlepacket = new ClientboundClearTitlesPacket(true);
 
-        for (ServerPlayerEntity serverplayerentity : players) {
+        for (ServerPlayer serverplayerentity : players) {
             serverplayerentity.connection.send(stitlepacket);
         }
     }
 
-    static void showTitle(Collection<ServerPlayerEntity> players, ITextComponent textComponent, STitlePacket.Type titlePacketType) {
-        for (ServerPlayerEntity serverplayerentity : players) {
-            serverplayerentity.connection.send(new STitlePacket(titlePacketType, textComponent));
+    static void showTitle(Collection<ServerPlayer> players, Component title, Component subTitle) {
+        for (ServerPlayer serverplayerentity : players) {
+            serverplayerentity.connection.send(new ClientboundSetSubtitleTextPacket(subTitle));
+            serverplayerentity.connection.send(new ClientboundSetTitleTextPacket(title));
         }
     }
 
-    static void setTimes(Collection<ServerPlayerEntity> players, int fadeIn, int stay, int fadeOut) {
-        STitlePacket stitlepacket = new STitlePacket(fadeIn, stay, fadeOut);
+    static void showActionBar(Collection<ServerPlayer> players, Component actionBarText) {
+        for (ServerPlayer serverplayerentity : players) {
+            serverplayerentity.connection.send(new ClientboundSetActionBarTextPacket(actionBarText));
+        }
+    }
 
-        for (ServerPlayerEntity serverplayerentity : players) {
+    static void setTimes(Collection<ServerPlayer> players, int fadeIn, int stay, int fadeOut) {
+        ClientboundSetTitlesAnimationPacket stitlepacket = new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
+
+        for (ServerPlayer serverplayerentity : players) {
             serverplayerentity.connection.send(stitlepacket);
         }
 
